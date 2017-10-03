@@ -1,9 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"io/ioutil"
+
+	"github.com/tslnc04/sql-rockets"
 
 	_ "github.com/lib/pq"
 )
@@ -33,23 +34,19 @@ func init() {
 }
 
 func main() {
-	info := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	db, err := sql.Open("postgres", info)
-	errHandle(err)
+	info := rockets.NewConn(host, port, user, password, dbname)
+	db := info.Connect()
 	defer db.Close()
 
-	err = db.Ping()
-	errHandle(err)
+	rockets.TestPing(db)
 
-	rows, err := db.Query("SELECT name FROM engines WHERE thrust_vac > 100")
+	rows, err := db.Query("SELECT * FROM engines WHERE thrust_vac > 100")
 	errHandle(err)
 	defer rows.Close()
 
 	for rows.Next() {
-		var name string
-		err = rows.Scan(&name)
+		var name = make([]interface{}, 9)
+		err = rows.Scan(&name[0], &name[1], &name[2], &name[3], &name[4], &name[5], &name[6], &name[7], &name[8])
 		errHandle(err)
 		fmt.Println(name)
 	}
