@@ -2,57 +2,34 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/tslnc04/sql-rockets"
 
 	_ "github.com/lib/pq"
 )
 
-var (
-	host     = "localhost"
-	port     = 5432
-	user     = "tslnc04"
-	password = ""
-	dbname   = "rockets"
-)
-
-func errHandle(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
+var cfg *rockets.Config
 
 func init() {
-	pass, err := ioutil.ReadFile(".pg_auth")
-
-	if err != nil {
-		panic(err)
-	}
-
-	password = string(pass)
+	cfg = rockets.LoadConfigFromFile(rockets.LoadFile(".pg_auth"))
 }
 
 func main() {
-	info := rockets.NewConn(host, port, user, password, dbname)
+	info := rockets.NewConn(cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBname)
 	db := info.Connect()
 	defer db.Close()
 
 	rockets.TestPing(db)
 
-	rows, err := db.Query("SELECT * FROM engines WHERE thrust_vac > 100")
-	errHandle(err)
-	defer rows.Close()
+	// interface of name
+	iname := rockets.QueryDBRows(db, "SELECT name FROM rockets")
+	rockets.AddRocket(db, "Test Name", 1.0, 1.0, "Test Manufacturer")
 
-	for rows.Next() {
-		var name = make([]interface{}, 9)
-		err = rows.Scan(&name[0], &name[1], &name[2], &name[3], &name[4], &name[5], &name[6], &name[7], &name[8])
-		errHandle(err)
-		fmt.Println(name)
+	// This code isn't exactly useful in this case, but could be
+	var name []string
+	for _, entry := range iname {
+		name = append(name, entry.(string))
 	}
 
-	err = rows.Err()
-	errHandle(err)
-
-	fmt.Println("Success! Yay!")
+	fmt.Println("Success! Yay!", name)
 }
