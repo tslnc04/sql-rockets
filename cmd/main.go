@@ -22,8 +22,8 @@ func main() {
 	rockets.TestPing(db)
 
 	// interface of name
-	iname := rockets.QueryDBRows(db, "SELECT name FROM rockets")
 	rockets.AddRocket(db, "Test Name", 1.0, 1.0, "Test Manufacturer")
+	iname := rockets.QueryDBRows(db, "SELECT name FROM rockets")
 
 	// This code isn't exactly useful in this case, but could be
 	var name []string
