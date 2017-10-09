@@ -15,6 +15,8 @@ func init() {
 }
 
 func main() {
+	rockets.Startup()
+
 	info := rockets.NewConn(cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBname)
 	db := info.Connect()
 	defer db.Close()
