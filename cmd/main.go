@@ -15,12 +15,13 @@ func init() {
 }
 
 func main() {
-	rockets.Startup()
-
 	info := rockets.NewConn(cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBname)
 	db := info.Connect()
 	defer db.Close()
 
+	rockets.Startup(db)
+
+	/*
 	rockets.TestPing(db)
 
 	// interface of name
@@ -34,4 +35,5 @@ func main() {
 	}
 
 	fmt.Println("Success! Yay!", name)
+	*/
 }

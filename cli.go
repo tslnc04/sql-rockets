@@ -4,13 +4,14 @@ import (
     "fmt"
     "strings"
     "strconv"
+    "database/sql"
 
     c "github.com/skilstak/go-colors"
     i "github.com/skilstak/go-input"
 )
 
 // Documentation prints out the documentation to the command
-func Documentation() {
+func Documentation(db *sql.DB) {
     fmt.Println(c.V + "Documentation [2017-10-08]")
     fmt.Println(c.C + "Likely to be outdated")
     fmt.Println()
@@ -22,21 +23,21 @@ func Documentation() {
     fmt.Println(c.C + "  L Adds rocket to database")
     fmt.Print(c.X)
 
-    GetInput()
+    GetInput(db)
 }
 
 // Startup is the function that gets run to start the CLI
-func Startup() {
+func Startup(db *sql.DB) {
     fmt.Print(c.Clear)
     fmt.Println(c.V + "Welcome to the rockets database CLI")
     fmt.Println(c.C + "Type 'h' or 'help' for help")
     fmt.Print(c.X + "\n")
 
-    GetInput()
+    GetInput(db)
 }
 
 // GetInput is the main input loop
-func GetInput() {
+func GetInput(db *sql.DB) {
     var input string
 
     for {
@@ -51,25 +52,26 @@ func GetInput() {
     }
 
     if strings.HasPrefix(input, "find rocket") {
-        FindRocket(input)
+        FindRocket(db, input)
     }
 
     switch input {
     case "h":
         fallthrough
     case "help":
-        fallthrough
-    default:
-        Documentation()
+        Documentation(db)
     }
 }
 
 // FindRocket handles finding the rocket by ID
-func FindRocket(input string) {
+func FindRocket(db *sql.DB, input string) {
     rocketIDString := strings.Split(input, " ")[2]
     rocketID, err := strconv.Atoi(rocketIDString)
 
     if err != nil {
         panic(err)
     }
+
+    foundRocket := FindRocketByID(db, rocketID)
+    fmt.Print(c.C + foundRocket.String())
 }
