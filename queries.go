@@ -36,7 +36,7 @@ func FindRocketByName(db *sql.DB, name string) *Rocket {
 // FindRocketByID searches the rocket DB based on the ID of the rocket
 func FindRocketByID(db *sql.DB, id int) *Rocket {
 	var output = new(Rocket)
-	row := db.QueryRow("SELECT * FROM rockets WHERE id = $1", id)
+	row := db.QueryRow("SELECT * FROM rockets WHERE id = $1;", id)
 
 	err := row.Scan(&output.ID, &output.Name, &output.Height,
 		&output.Diameter, &output.Manufacturer)
@@ -48,8 +48,9 @@ func FindRocketByID(db *sql.DB, id int) *Rocket {
 	return output
 }
 
+// ChangeRocketManufacturer updates the database changing manufacturer
 func ChangeRocketManufacturer(db *sql.DB, id int, manu string) bool {
-	statement := `UPDATE rockets SET manufacturer = $1 WHERE id = $2`
+	statement := `UPDATE rockets SET manufacturer = $1 WHERE id = $2;`
 	_, err := db.Exec(statement, manu, id)
 
 	if err != nil {

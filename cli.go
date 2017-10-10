@@ -5,6 +5,7 @@ import (
     "strings"
     "strconv"
     "database/sql"
+    "os"
 
     c "github.com/skilstak/go-colors"
     i "github.com/skilstak/go-input"
@@ -18,7 +19,7 @@ func Documentation(db *sql.DB) {
     fmt.Println(c.C + "- h[elp]    Displays this documentation")
     fmt.Println(c.C + "- find rocket <id>    Finds rocket based on id")
 
-    fmt.Println(c.C + "- change rocket manufacturer <manufacturer>   Finds rocket based on id")
+    fmt.Println(c.C + "- change rocket manufacturer <id> <manufacturer>   Finds rocket based on id")
     fmt.Println(c.C + "- add rocket <name> <height> <diameter> <manufacturer>")
     fmt.Println(c.C + "  L Adds rocket to database")
     fmt.Print(c.X)
@@ -53,13 +54,20 @@ func GetInput(db *sql.DB) {
 
     if strings.HasPrefix(input, "find rocket") {
         FindRocket(db, input)
+    } else if strings.HasPrefix(input, "change rocket manufacturer") {
+        ChangeManufacturer(db, input)
     }
 
     switch input {
-    case "h":
-        fallthrough
-    case "help":
+    case "h", "help":
         Documentation(db)
+    case "clear":
+        fmt.Println(c.Clear)
+    case "exit", "x":
+        fmt.Println(c.C + "Bye")
+        os.Exit(0)
+    default:
+        GetInput(db)
     }
 }
 
@@ -74,4 +82,27 @@ func FindRocket(db *sql.DB, input string) {
 
     foundRocket := FindRocketByID(db, rocketID)
     fmt.Print(c.C + foundRocket.String())
+
+    GetInput(db)
+}
+
+// ChangeManufacturer is the CLI handler for changing the rocket manufacturer
+func ChangeManufacturer(db *sql.DB, input string) {
+    splitInput := strings.Split(input, " ")
+
+    rocketIDString := splitInput[3]
+    rocketID, err := strconv.Atoi(rocketIDString)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketManufacturer := strings.Join(splitInput[4:], " ")
+    success := ChangeRocketManufacturer(db, rocketID, rocketManufacturer)
+
+    if success {
+        fmt.Println(c.C + "Manufacturer successfully updated.")
+    }
+
+    GetInput(db)
 }

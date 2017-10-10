@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/tslnc04/sql-rockets"
 
 	_ "github.com/lib/pq"
