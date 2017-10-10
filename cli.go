@@ -2,10 +2,14 @@ package rockets
 
 import (
     "fmt"
+    "strings"
+    "strconv"
+
     c "github.com/skilstak/go-colors"
     i "github.com/skilstak/go-input"
 )
 
+// Documentation prints out the documentation to the command
 func Documentation() {
     fmt.Println(c.V + "Documentation [2017-10-08]")
     fmt.Println(c.C + "Likely to be outdated")
@@ -21,6 +25,7 @@ func Documentation() {
     GetInput()
 }
 
+// Startup is the function that gets run to start the CLI
 func Startup() {
     fmt.Print(c.Clear)
     fmt.Println(c.V + "Welcome to the rockets database CLI")
@@ -30,6 +35,7 @@ func Startup() {
     GetInput()
 }
 
+// GetInput is the main input loop
 func GetInput() {
     var input string
 
@@ -44,10 +50,26 @@ func GetInput() {
         break
     }
 
+    if strings.HasPrefix(input, "find rocket") {
+        FindRocket(input)
+    }
+
     switch input {
     case "h":
         fallthrough
     case "help":
+        fallthrough
+    default:
         Documentation()
+    }
+}
+
+// FindRocket handles finding the rocket by ID
+func FindRocket(input string) {
+    rocketIDString := strings.Split(input, " ")[2]
+    rocketID, err := strconv.Atoi(rocketIDString)
+
+    if err != nil {
+        panic(err)
     }
 }
