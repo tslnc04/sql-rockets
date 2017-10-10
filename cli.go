@@ -56,6 +56,8 @@ func GetInput(db *sql.DB) {
         FindRocket(db, input)
     } else if strings.HasPrefix(input, "change rocket manufacturer") {
         ChangeManufacturer(db, input)
+    } else if strings.HasPrefix(input, "add rocket") {
+        AddRocketCLI(db, input)
     }
 
     switch input {
@@ -102,6 +104,34 @@ func ChangeManufacturer(db *sql.DB, input string) {
 
     if success {
         fmt.Println(c.C + "Manufacturer successfully updated.")
+    }
+
+    GetInput(db)
+}
+
+// AddRocketCLI is the CLI handler for adding a rocket to the databse
+// Note: CLI is added at the end due to AddRocket already existing, it should really be added to all
+func AddRocketCLI(db *sql.DB, input string) {
+    splitInput := strings.Split(input, " ")
+
+    rocketName := splitInput[2]
+    rocketHeight, err := strconv.ParseFloat(splitInput[3], 32)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketDiameter, err := strconv.ParseFloat(splitInput[4], 32)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketManufacturer := strings.Join(splitInput[5:], " ")
+    success := AddRocket(db, rocketName, rocketHeight, rocketDiameter, rocketManufacturer)
+
+    if success {
+        fmt.Println(c.C + "Rocket added successfully.")
     }
 
     GetInput(db)
