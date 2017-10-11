@@ -17,6 +17,7 @@ func main() {
 	db := info.Connect()
 	defer db.Close()
 
+	rockets.TestPing(db)
 	rockets.Startup(db)
 
 	/*
