@@ -18,10 +18,14 @@ func Documentation(db *sql.DB) {
     fmt.Println()
     fmt.Println(c.C + "- h[elp]    Displays this documentation")
     fmt.Println(c.C + "- find rocket <id>    Finds rocket based on id")
-
     fmt.Println(c.C + "- change rocket manufacturer <id> <manufacturer>   Finds rocket based on id")
+    fmt.Println(c.C + "- e[x]it   Exit the program")
+    fmt.Println(c.C + "- clear   Clear the screen")
+    fmt.Println(c.C + "- upsert rocket <id> <name> <height> <diameter> <manufacturer>")
+    fmt.Println(c.C + "  L Adds rocket unless it exist, where it will update all rockets")
     fmt.Println(c.C + "- add rocket <name> <height> <diameter> <manufacturer>")
     fmt.Println(c.C + "  L Adds rocket to database")
+
     fmt.Print(c.X)
 
     GetInput(db)
@@ -58,6 +62,8 @@ func GetInput(db *sql.DB) {
         ChangeManufacturer(db, input)
     } else if strings.HasPrefix(input, "add rocket") {
         AddRocketCLI(db, input)
+    } else if strings.HasPrefix(input, "upsert rocket") {
+        UpsertRocket(db, input)
     }
 
     switch input {
@@ -68,9 +74,9 @@ func GetInput(db *sql.DB) {
     case "exit", "x":
         fmt.Println(c.C + "Bye")
         os.Exit(0)
-    default:
-        GetInput(db)
     }
+
+    GetInput(db)
 }
 
 // FindRocket handles finding the rocket by ID
@@ -128,10 +134,44 @@ func AddRocketCLI(db *sql.DB, input string) {
     }
 
     rocketManufacturer := strings.Join(splitInput[5:], " ")
-    success := AddRocket(db, rocketName, rocketHeight, rocketDiameter, rocketManufacturer)
+    success := AddRocket(db, rocketName, float32(rocketHeight), float32(rocketDiameter), rocketManufacturer)
 
     if success {
         fmt.Println(c.C + "Rocket added successfully.")
+    }
+
+    GetInput(db)
+}
+
+// UpsertRocket is the handler for performing an upsert
+func UpsertRocket(db *sql.DB, input string) {
+    splitInput := strings.Split(input, " ")
+
+    rocketIDString := splitInput[2]
+    rocketID, err := strconv.Atoi(rocketIDString)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketName := splitInput[3]
+    rocketHeight, err := strconv.ParseFloat(splitInput[4], 32)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketDiameter, err := strconv.ParseFloat(splitInput[5], 32)
+
+    if err != nil {
+        panic(err)
+    }
+
+    rocketManufacturer := strings.Join(splitInput[6:], " ")
+    success := AddOrUpdateRocket(db, rocketID, rocketName, float32(rocketHeight), float32(rocketDiameter), rocketManufacturer)
+
+    if success {
+        fmt.Println(c.C + "Rocket upserted successfully.")
     }
 
     GetInput(db)

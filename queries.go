@@ -59,3 +59,17 @@ func ChangeRocketManufacturer(db *sql.DB, id int, manu string) bool {
 
 	return true
 }
+
+// AddOrUpdateRocket preforms an upsert adding or modifying the existing id
+func AddOrUpdateRocket(db *sql.DB, id int, name string, height, diameter float32, manufacturer string) bool {
+	statement := `INSERT INTO rockets (id, name, height, diameter, manufacturer)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (id) DO UPDATE SET id = $1, name = $2, height = $3, diameter = $4, manufacturer = $5;`
+	_, err := db.Exec(statement, id, name, height, diameter, manufacturer)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return true
+}
