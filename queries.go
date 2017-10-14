@@ -1,6 +1,10 @@
 package rockets
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+	"log"
+)
 
 // AddRocket is an interactive tool to add a rocket to the table
 func AddRocket(db *sql.DB, name string, height, diameter float32, manufacturer string) bool {
@@ -38,8 +42,12 @@ func FindRocketByID(db *sql.DB, id int) *Rocket {
 	var output = new(Rocket)
 	row := db.QueryRow("SELECT * FROM rockets WHERE id = $1;", id)
 
-	err := row.Scan(&output.ID, &output.Name, &output.Height,
-		&output.Diameter, &output.Manufacturer)
+	err := row.Scan(&output) /*.ID, &output.Name, &output.Height,
+	&output.Diameter, &output.Manufacturer)*/
+
+	if err == sql.ErrNoRows {
+		log.Fatal("No results found")
+	}
 
 	if err != nil {
 		panic(err)
@@ -70,6 +78,46 @@ ON CONFLICT (id) DO UPDATE SET id = $1, name = $2, height = $3, diameter = $4, m
 	if err != nil {
 		panic(err)
 	}
+
+	return true
+}
+
+// JoinTest is a test of joining in golang postgres
+func JoinTest(db *sql.DB) bool {
+	statement := `SELECT stages.engine_id, engines.name
+FROM stages
+RIGHT JOIN engines
+ON stages.engine_id = engines.id;`
+
+	rows, err := db.Query(statement)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var id sql.NullInt64
+		var name string
+		err = rows.Scan(&id, &name)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(id, name)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+	/*test, err := db.Exec(statement)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(test)*/
 
 	return true
 }

@@ -18,21 +18,22 @@ func main() {
 	defer db.Close()
 
 	rockets.TestPing(db)
-	rockets.Startup(db)
+	rockets.JoinTest(db)
+	// rockets.Startup(db)
 
 	/*
-	rockets.TestPing(db)
+		rockets.TestPing(db)
 
-	// interface of name
-	rockets.AddRocket(db, "Test Name", 1.0, 1.0, "Test Manufacturer")
-	iname := rockets.QueryDBRows(db, "SELECT name FROM rockets")
+		// interface of name
+		rockets.AddRocket(db, "Test Name", 1.0, 1.0, "Test Manufacturer")
+		iname := rockets.QueryDBRows(db, "SELECT name FROM rockets")
 
-	// This code isn't exactly useful in this case, but could be
-	var name []string
-	for _, entry := range iname {
-		name = append(name, entry.(string))
-	}
+		// This code isn't exactly useful in this case, but could be
+		var name []string
+		for _, entry := range iname {
+			name = append(name, entry.(string))
+		}
 
-	fmt.Println("Success! Yay!", name)
+		fmt.Println("Success! Yay!", name)
 	*/
 }
