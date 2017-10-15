@@ -18,8 +18,8 @@ func main() {
 	defer db.Close()
 
 	rockets.TestPing(db)
-	rockets.JoinTest(db)
-	// rockets.Startup(db)
+	// fmt.Println(rockets.FindStageRockets(db, 3))
+	rockets.Startup(db)
 
 	/*
 		rockets.TestPing(db)

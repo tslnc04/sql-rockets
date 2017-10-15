@@ -2,7 +2,6 @@ package rockets
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -82,14 +81,17 @@ ON CONFLICT (id) DO UPDATE SET id = $1, name = $2, height = $3, diameter = $4, m
 	return true
 }
 
-// JoinTest is a test of joining in golang postgres
-func JoinTest(db *sql.DB) bool {
-	statement := `SELECT stages.engine_id, engines.name
-FROM stages
+// FindStageEngines returns 'limit' number of entries consisting of the
+// stage's id, the engine's id, and the name of the engine
+func FindStageEngines(db *sql.DB, limit int) ([]int, []int, []string) {
+	statement := `
+    SELECT stages.stage_id, stages.engine_id, engines.name
+      FROM stages
 RIGHT JOIN engines
-ON stages.engine_id = engines.id;`
+        ON stages.engine_id = engines.id
+     LIMIT $1;`
 
-	rows, err := db.Query(statement)
+	rows, err := db.Query(statement, limit)
 
 	if err != nil {
 		panic(err)
@@ -97,27 +99,78 @@ ON stages.engine_id = engines.id;`
 
 	defer rows.Close()
 
+	var outputStageID []int
+	var outputEngineID []int
+	var outputName []string
+
 	for rows.Next() {
-		var id sql.NullInt64
+		var stageID sql.NullInt64
+		var engineID sql.NullInt64
 		var name string
-		err = rows.Scan(&id, &name)
+
+		err = rows.Scan(&stageID, &engineID, &name)
+
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(id, name)
+
+		outputStageID = append(outputStageID, int(stageID.Int64))
+		outputEngineID = append(outputEngineID, int(engineID.Int64))
+		outputName = append(outputName, name)
 	}
 
 	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-	/*test, err := db.Exec(statement)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(test)*/
+	return outputStageID, outputEngineID, outputName
+}
 
-	return true
+// FindStageRockets returns 'limit' number of entries consisting of the
+// stage's id, the rocket's id, and the name of the
+func FindStageRockets(db *sql.DB, limit int) ([]int, []int, []string) {
+	statement := `
+    SELECT stages.stage_id, stages.rocket_id, rockets.name
+      FROM stages
+RIGHT JOIN rockets
+        ON stages.rocket_id = rockets.id
+     LIMIT $1;`
+
+	rows, err := db.Query(statement, limit)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	var outputStageID []int
+	var outputRocketID []int
+	var outputName []string
+
+	for rows.Next() {
+		var stageID sql.NullInt64
+		var rocketID sql.NullInt64
+		var name string
+
+		err = rows.Scan(&stageID, &rocketID, &name)
+
+		if err != nil {
+			panic(err)
+		}
+
+		outputStageID = append(outputStageID, int(stageID.Int64))
+		outputRocketID = append(outputRocketID, int(rocketID.Int64))
+		outputName = append(outputName, name)
+	}
+
+	err = rows.Err()
+
+	if err != nil {
+		panic(err)
+	}
+
+	return outputStageID, outputRocketID, outputName
 }
